@@ -1,6 +1,6 @@
 # WebGPT
 
-**WebGPT** is a lightweight Android WebView app for accessing [ChatGPT](https://chatgpt.com), based on the open source project [gptAssist](https://github.com/woheller69/gptAssist).
+**WebGPT** is a simple WebView wrapper for [ChatGPT](https://chatgpt.com), based on the open source project [gptAssist](https://github.com/woheller69/gptAssist).
 
 This is a modified version intended for public use under the terms of the GNU General Public License v3.0.
 
