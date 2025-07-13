@@ -1,0 +1,7 @@
+Initial release as WebGPT 1.0.0
+
+• Forked from gptAssist  
+• Changed app name, icon, and package ID  
+• Removed third-party domain-blocking icon and logic  
+• Simplified domain restriction logic: only opens chatgpt.com and login/signup pages inside the app  
+• External links now open in the system browser

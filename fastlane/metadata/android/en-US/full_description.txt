@@ -1,0 +1,13 @@
+WebGPT is a lightweight, open-source Android app that wraps ChatGPT's web interface using a minimal WebView. It's ideal for users with low-end devices or those unable to use the official ChatGPT app due to Play Integrity or compatibility issues.
+
+Features:
+
+• Minimal and fast — just loads ChatGPT in a secure WebView  
+• Only allows chatgpt.com and related login/signup resources inside the app  
+• All external links open in the user's browser  
+• Light/dark mode support based on system theme  
+• No tracking, analytics, or background activity  
+• Very small APK (~150 KB)  
+• Requires only internet and (optionally) microphone permission for voice input
+
+This app is a respectful fork of [gptAssist](https://github.com/woheller69/gptAssist), licensed under GPLv3. It includes minor tweaks to improve usability and access, especially for users facing issues with the official app.
