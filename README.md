@@ -40,5 +40,7 @@ This program is distributed in the hope that it will be useful,
 but **WITHOUT ANY WARRANTY**; without even the implied warranty of
 **MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE**. See the [LICENSE](LICENSE) file for details.
 
-© 2025 [Qomarul Hasan](https://github.com/qomarhsn)
-Originally developed by [@woheller69](https://github.com/woheller69) as **gptAssist**
+## 🙏 Acknowledgment
+
+This project is a minimal modification of [gptAssist](https://github.com/woheller69/gptAssist) by [@woheller69](https://github.com/woheller69).
+Full credit goes to the original developer.
