@@ -3,7 +3,7 @@ name: Android Release CI
 on:
   push:
     tags:
-      - 'v*' # Triggers on tags like v1.0, v1.0.1, etc.
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -34,14 +34,12 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew test
 
-      - name: Build Release APK
+      - name: Build Signed Release APK
         env:
-          ORG_GRADLE_PROJECT_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          ORG_GRADLE_PROJECT_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          ORG_GRADLE_PROJECT_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: |
-          set -e
-          ./gradlew assembleRelease
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew assembleRelease
 
       - name: List APK files for debugging
         run: find app/build/outputs/apk/ -type f -name '*.apk' -ls
