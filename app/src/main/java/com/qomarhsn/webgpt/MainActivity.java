@@ -166,9 +166,12 @@ public class MainActivity extends Activity {
                     return null;
                 }
 
-                if (url.startsWith("https://chatgpt.com/") ||
-                    url.equals("https://auth.openai.com/log-in") ||
-                    url.equals("https://auth.openai.com/create-account")) {
+                if (url.matches("https://([a-zA-Z0-9-]+\\.)*chatgpt\\.com/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*oaistatic\\.com/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*openai\\.com/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*prodregistryv2\\.org/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*featureassets\\.org/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*browser-intake-datadoghq\\.com/.*")) {
                     return null; // Allow these URLs to load in WebView
                 } else {
                     // Open all other URLs in an external browser
@@ -185,9 +188,12 @@ public class MainActivity extends Activity {
                     return false;
                 }
 
-                if (url.startsWith("https://chatgpt.com/") ||
-                    url.equals("https://auth.openai.com/log-in") ||
-                    url.equals("https://auth.openai.com/create-account")) {
+                if (url.matches("https://([a-zA-Z0-9-]+\\.)*chatgpt\\.com/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*oaistatic\\.com/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*openai\\.com/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*prodregistryv2\\.org/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*featureassets\\.org/.*") ||
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*browser-intake-datadoghq\\.com/.*")) {
                     return false; // Allow these URLs to load in WebView
                 } else {
                     // Open all other URLs in an external browser
@@ -352,7 +358,6 @@ public class MainActivity extends Activity {
                 } else if (result.getType() == SRC_ANCHOR_TYPE) {
                     url = result.getExtra();
                     Toast.makeText(this, "SRC_ANCHOR: " + url, Toast.LENGTH_SHORT).show();
-                }
                 }
             }
         }
