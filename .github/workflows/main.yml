@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - 'v*' # Triggers on tags like v1.0, v1.0.1, etc.
-
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -51,9 +50,11 @@ jobs:
       - name: Generate Changelog
         id: changelog
         run: |
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          git log -1 --pretty=format:"- %s" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "changelog<<EOF"
+            git log -1 --pretty=format:"- %s"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
