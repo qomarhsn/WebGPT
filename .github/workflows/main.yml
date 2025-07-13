@@ -4,7 +4,7 @@ on:
   push:
     tags:
       - 'v*' # Triggers on tags like v1.0, v1.0.1, etc.
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   build-and-release:
@@ -42,6 +42,9 @@ jobs:
         run: |
           set -e
           ./gradlew assembleRelease
+
+      - name: List APK files for debugging
+        run: find app/build/outputs/apk/ -type f -name '*.apk' -ls
 
       - name: Get tag name
         id: get_tag
