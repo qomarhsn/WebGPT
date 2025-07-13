@@ -1,1 +1,0 @@
-Block login via Apple ID

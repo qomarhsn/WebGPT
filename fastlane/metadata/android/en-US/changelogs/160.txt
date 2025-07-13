@@ -1,2 +1,0 @@
-Allow auth.openai.com
-Update for Android 14 (SDK 34)

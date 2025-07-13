@@ -1,2 +1,0 @@
-Add Turkish translation
-Allow additional domain for images in advanced data analysis

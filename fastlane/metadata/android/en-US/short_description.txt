@@ -1,1 +1,0 @@
-WebView wrapper for ChatGPT
