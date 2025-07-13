@@ -9,8 +9,8 @@ android {
         applicationId "com.qomarhsn.webgpt"
         minSdk 21
         targetSdk 34
-        versionCode 190
-        versionName "1.90"
+        versionCode 100
+        versionName "1.0.0"
     }
 
     buildTypes {
