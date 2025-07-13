@@ -1,4 +1,4 @@
-package org.woheller69.gptassist;
+package com.qomarhsn.webgpt;
 
 import android.app.AlertDialog;
 import android.content.Context;

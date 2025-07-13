@@ -1,4 +1,4 @@
-package org.woheller69.gptassist;
+package com.qomarhsn.webgpt;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
