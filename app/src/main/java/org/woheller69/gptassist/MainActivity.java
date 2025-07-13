@@ -11,7 +11,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-package org.woheller69.gptassist;
+package com.qomarhsn.webgpt;
 
 import static android.webkit.WebView.HitTestResult.IMAGE_TYPE;
 import static android.webkit.WebView.HitTestResult.SRC_ANCHOR_TYPE;
@@ -60,14 +60,12 @@ import java.util.ArrayList;
 public class MainActivity extends Activity {
 
     private WebView chatWebView = null;
-    private ImageButton restrictedButton = null;
+    private static final int MICROPHONE_PERMISSION_REQUEST_CODE = 2; // New constant for microphone permission
     private WebSettings chatWebSettings = null;
     private CookieManager chatCookieManager = null;
     private final Context context = this;
-    private SwipeTouchListener swipeTouchListener;
     private String TAG ="gptAssist";
     private String urlToLoad = "https://chatgpt.com/";
-    private static boolean restricted = true;
 
     private static final ArrayList<String> allowedDomains = new ArrayList<String>();
 
@@ -77,49 +75,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onPause() {
         if (chatCookieManager!=null) chatCookieManager.flush();
-        swipeTouchListener = null;
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        if (restricted) restrictedButton.setImageDrawable(getDrawable(R.drawable.restricted));
-        else restrictedButton.setImageDrawable(getDrawable(R.drawable.unrestricted));
-
-        restrictedButton.setOnClickListener(v -> {
-            restricted = !restricted;
-            if (restricted) {
-                restrictedButton.setImageDrawable(getDrawable(R.drawable.restricted));
-                Toast.makeText(context,R.string.urls_restricted,Toast.LENGTH_SHORT).show();
-                chatWebSettings.setUserAgentString(modUserAgent());
-            }
-            else {
-                restrictedButton.setImageDrawable(getDrawable(R.drawable.unrestricted));
-                Toast.makeText(context,R.string.all_urls,Toast.LENGTH_SHORT).show();
-                chatWebSettings.setUserAgentString(modUserAgent()); //Needed for login via Google
-            }
-            chatWebView.reload();
-        });
-
-        swipeTouchListener = new SwipeTouchListener(context) {
-            public void onSwipeBottom() {
-                if (!chatWebView.canScrollVertically(0)) {
-                    restrictedButton.setVisibility(View.VISIBLE);
-                }
-            }
-            public void onSwipeTop(){
-                    restrictedButton.setVisibility(View.GONE);
-            }
-        };
-
-        chatWebView.setOnTouchListener(swipeTouchListener);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        restricted = true;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             setTheme(android.R.style.Theme_DeviceDefault_DayNight);
         }
@@ -131,7 +96,6 @@ public class MainActivity extends Activity {
         //Create the WebView
         chatWebView = findViewById(R.id.chatWebView);
         registerForContextMenu(chatWebView);
-        restrictedButton = findViewById(R.id.restricted);
 
         //Set cookie options
         chatCookieManager = CookieManager.getInstance();
@@ -170,75 +134,67 @@ public class MainActivity extends Activity {
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("*/*");
                 startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE);
-                return true;
-            }
-        });  //needed to share link
+            return true;
+        }
 
-        chatWebView.setWebViewClient(new WebViewClient() {
+        @Override
+        public void onPermissionRequest(final android.webkit.PermissionRequest request) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (request.getResources().length > 0 && request.getResources()[0].equals(android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
+                    if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                        request.grant(request.getResources());
+                    } else {
+                        // Request the permission from the user
+                        requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MICROPHONE_PERMISSION_REQUEST_CODE);
+                        // A more robust solution would involve storing 'request' and calling request.grant() in onRequestPermissionsResult.
+                    }
+                } else {
+                    request.deny();
+                }
+            } else {
+                request.grant(request.getResources()); // For older Android versions, permissions are granted at install time
+            }
+        }
+    });  //needed to share link
+
+    chatWebView.setWebViewClient(new WebViewClient() {
             //Keep these in sync!
             @Override
             public WebResourceResponse shouldInterceptRequest(final WebView view, WebResourceRequest request) {
-                if (!restricted) return null;
-
-                if (request.getUrl().toString().equals("about:blank")) {
+                String url = request.getUrl().toString();
+                if (url.equals("about:blank")) {
                     return null;
                 }
-                if (!request.getUrl().toString().startsWith("https://")) {
-                    Log.d(TAG, "[shouldInterceptRequest][NON-HTTPS] Blocked access to " + request.getUrl().toString());
-                    return new WebResourceResponse("text/javascript", "UTF-8", null); //Deny URLs that aren't HTTPS
+
+                if (url.startsWith("https://chatgpt.com/") ||
+                    url.equals("https://auth.openai.com/log-in") ||
+                    url.equals("https://auth.openai.com/create-account")) {
+                    return null; // Allow these URLs to load in WebView
+                } else {
+                    // Open all other URLs in an external browser
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    context.startActivity(browserIntent);
+                    return new WebResourceResponse("text/javascript", "UTF-8", null); // Block in WebView
                 }
-                boolean allowed = false;
-                for (String url : allowedDomains) {
-                    if (request.getUrl().getHost().endsWith(url)) {
-                        allowed = true;
-                    }
-                }
-                if (!allowed) {
-                    Log.d(TAG, "[shouldInterceptRequest][NOT ON ALLOWLIST] Blocked access to " + request.getUrl().getHost());
-                    if (request.getUrl().getHost().equals("login.microsoftonline.com") || request.getUrl().getHost().equals("accounts.google.com") || request.getUrl().getHost().equals("appleid.apple.com")){
-                        Toast.makeText(context, context.getString(R.string.error_microsoft_google), Toast.LENGTH_LONG).show();
-                        resetChat();
-                    }
-                    if (request.getUrl().toString().contains("gravatar.com/avatar/")) {
-                        AssetManager assetManager = getAssets();
-                        try {
-                            InputStream inputStream = assetManager.open("avatar.png");
-                            return new WebResourceResponse("image/png","UTF-8",inputStream);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    return new WebResourceResponse("text/javascript", "UTF-8", null); //Deny URLs not on ALLOWLIST
-                }
-                return null;
             }
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                if (!restricted) return false;
-
-                if (request.getUrl().toString().equals("about:blank")) {
+                String url = request.getUrl().toString();
+                if (url.equals("about:blank")) {
                     return false;
                 }
-                if (!request.getUrl().toString().startsWith("https://")) {
-                    Log.d(TAG, "[shouldOverrideUrlLoading][NON-HTTPS] Blocked access to " + request.getUrl().toString());
-                    return true; //Deny URLs that aren't HTTPS
+
+                if (url.startsWith("https://chatgpt.com/") ||
+                    url.equals("https://auth.openai.com/log-in") ||
+                    url.equals("https://auth.openai.com/create-account")) {
+                    return false; // Allow these URLs to load in WebView
+                } else {
+                    // Open all other URLs in an external browser
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    context.startActivity(browserIntent);
+                    return true; // Indicate that the host application is handling the URL
                 }
-                boolean allowed = false;
-                for (String url : allowedDomains) {
-                    if (request.getUrl().getHost().endsWith(url)) {
-                        allowed = true;
-                    }
-                }
-                if (!allowed) {
-                    Log.d(TAG, "[shouldOverrideUrlLoading][NOT ON ALLOWLIST] Blocked access to " + request.getUrl().getHost());
-                    if (request.getUrl().getHost().equals("login.microsoftonline.com") || request.getUrl().getHost().equals("accounts.google.com") || request.getUrl().getHost().equals("appleid.apple.com")){
-                        Toast.makeText(context, context.getString(R.string.error_microsoft_google), Toast.LENGTH_LONG).show();
-                        resetChat();
-                    }
-                    return true; //Deny URLs not on ALLOWLIST
-                }
-                return false;
             }
         });
 
@@ -286,6 +242,26 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == MICROPHONE_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(context, "Microphone permission granted.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(context, "Microphone permission denied.", Toast.LENGTH_SHORT).show();
+            }
+        }
+        // Handle other permission requests if any (like FILE_CHOOSER_REQUEST_CODE)
+        if (requestCode == 100) { // This is the request code for READ_EXTERNAL_STORAGE from onShowFileChooser
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted for file access
+            } else {
+                Toast.makeText(context, "Storage permission denied.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //Credit (CC BY-SA 3.0): https://stackoverflow.com/a/6077173
         if (event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -319,15 +295,7 @@ public class MainActivity extends Activity {
     }
 
     private static void initURLs() {
-        //Allowed Domains
-        allowedDomains.add("cdn.auth0.com");
-        allowedDomains.add("auth.openai.com");
-        allowedDomains.add("chatgpt.com");
-        allowedDomains.add("openai.com");
-        allowedDomains.add("fileserviceuploadsperm.blob.core.windows.net");
-        allowedDomains.add("cdn.oaistatic.com");
-        allowedDomains.add("oaiusercontent.com");
-
+        // No longer needed as specific URLs are checked directly
     }
 
     @Override
@@ -385,38 +353,8 @@ public class MainActivity extends Activity {
                     url = result.getExtra();
                     Toast.makeText(this, "SRC_ANCHOR: " + url, Toast.LENGTH_SHORT).show();
                 }
-                String host = Uri.parse(url).getHost();
-                if (host != null) {
-                    boolean allowed = false;
-                    for (String domain : allowedDomains) {
-                        if (host.endsWith(domain)) {
-                            allowed = true;
-                            break;
-                        }
-                    }
-                    if (!allowed) {  //Copy URLs that are not allowed to open to clipboard
-                        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                        ClipData clip = ClipData.newPlainText(getString(R.string.app_name), url);
-                        clipboard.setPrimaryClip(clip);
-                        Toast.makeText(this, getString(R.string.url_copied), Toast.LENGTH_SHORT).show();
-                    }
                 }
             }
         }
     }
-
-    public String modUserAgent(){
-
-        String newPrefix = "Mozilla/5.0 (X11; Linux "+ System.getProperty("os.arch") +")";
-
-        String newUserAgent=WebSettings.getDefaultUserAgent(context);
-        String prefix = newUserAgent.substring(0, newUserAgent.indexOf(")") + 1);
-         try {
-                newUserAgent=newUserAgent.replace(prefix,newPrefix);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-         return newUserAgent;
-    }
-
 }

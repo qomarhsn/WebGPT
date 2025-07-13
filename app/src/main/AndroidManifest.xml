@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.woheller69.gptassist">
+    package="com.qomarhsn.webgpt">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault">
         <activity
-            android:name="org.woheller69.gptassist.MainActivity"
+        android:name="com.qomarhsn.webgpt.MainActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:launchMode="singleTask"
             android:exported="true">
