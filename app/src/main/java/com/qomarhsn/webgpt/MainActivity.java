@@ -51,7 +51,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 import android.webkit.ValueCallback;
 import android.net.Uri;
-
+import android.webkit.PermissionRequest; // Import PermissionRequest
 import androidx.webkit.URLUtilCompat;
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,6 +71,7 @@ public class MainActivity extends Activity {
 
     private ValueCallback<Uri[]> mUploadMessage;
     private final static int FILE_CHOOSER_REQUEST_CODE = 1;
+    private PermissionRequest mPermissionRequest; // Declare PermissionRequest member variable
 
     @Override
     protected void onPause() {
@@ -144,9 +145,10 @@ public class MainActivity extends Activity {
                     if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
                         request.grant(request.getResources());
                     } else {
+                        // Store the request for later use in onRequestPermissionsResult
+                        mPermissionRequest = request;
                         // Request the permission from the user
                         requestPermissions(new String[]{Manifest.permission.RECORD_AUDIO}, MICROPHONE_PERMISSION_REQUEST_CODE);
-                        // A more robust solution would involve storing 'request' and calling request.grant() in onRequestPermissionsResult.
                     }
                 } else {
                     request.deny();
@@ -228,6 +230,8 @@ public class MainActivity extends Activity {
         chatWebSettings.setJavaScriptEnabled(true);
         chatWebSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         chatWebSettings.setDomStorageEnabled(true);
+        // Enable media playback without user gesture for microphone access
+        chatWebSettings.setMediaPlaybackRequiresUserGesture(false);
         //Disable some WebView features
         chatWebSettings.setAllowContentAccess(false);
         chatWebSettings.setAllowFileAccess(false);
@@ -251,14 +255,17 @@ public class MainActivity extends Activity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == MICROPHONE_PERMISSION_REQUEST_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(context, "Microphone permission granted.", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, "Microphone permission denied.", Toast.LENGTH_SHORT).show();
+            if (mPermissionRequest != null) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mPermissionRequest.grant(mPermissionRequest.getResources());
+                    Toast.makeText(context, "Microphone permission granted.", Toast.LENGTH_SHORT).show();
+                } else {
+                    mPermissionRequest.deny();
+                    Toast.makeText(context, "Microphone permission denied.", Toast.LENGTH_SHORT).show();
+                }
+                mPermissionRequest = null; // Clear the stored request
             }
-        }
-        // Handle other permission requests if any (like FILE_CHOOSER_REQUEST_CODE)
-        if (requestCode == 100) { // This is the request code for READ_EXTERNAL_STORAGE from onShowFileChooser
+        } else if (requestCode == FILE_CHOOSER_REQUEST_CODE) { // Handle FILE_CHOOSER_REQUEST_CODE
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Permission granted for file access
             } else {
