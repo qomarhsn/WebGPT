@@ -243,7 +243,6 @@ public class MainActivity extends Activity {
 
         //Load ChatGPT
         chatWebView.loadUrl(urlToLoad);
-        if (GithubStar.shouldShowStarDialog(this)) GithubStar.starDialog(this,"https://github.com/woheller69/gptassist");
     }
 
     @Override
