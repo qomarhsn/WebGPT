@@ -1,6 +1,6 @@
 # WebGPT
 
-**WebGPT** is a lightweight, open source WebView-based Android app for [ChatGPT](https://chatgpt.com), forked from the original project [gptAssist](https://github.com/woheller69/gptAssist).
+**WebGPT** is a lightweight, open source WebView-based Android app for [ChatGPT](https://chatgpt.com).
 
 ![Release workflow](https://github.com/qomarhsn/WebGPT/actions/workflows/main.yml/badge.svg)
 

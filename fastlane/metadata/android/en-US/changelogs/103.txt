@@ -1,0 +1,3 @@
+- Updated WebView logic to restrict main frame navigations to chatgpt.com and auth.openai.com.
+- Allowed all embedded resources from any domain to load inside the allowed pages.
+- Updated app version to 1.0.3 (build 103).
