@@ -168,12 +168,16 @@ public class MainActivity extends Activity {
                     return null;
                 }
 
+                // Allow all embedded resources (like images, CSS, JS, fonts, etc.) from any domain to load inside the allowed pages.
+                // This method is called for all resource requests, not just main frame navigations.
+                // If it's not a main frame request, allow it.
+                if (!request.isForMainFrame()) {
+                    return null;
+                }
+
+                // For main frame requests, apply the domain restrictions
                 if (url.matches("https://([a-zA-Z0-9-]+\\.)*chatgpt\\.com/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*oaistatic\\.com/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*openai\\.com/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*prodregistryv2\\.org/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*featureassets\\.org/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*browser-intake-datadoghq\\.com/.*")) {
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*auth\\.openai\\.com/.*")) {
                     return null; // Allow these URLs to load in WebView
                 } else {
                     // Open all other URLs in an external browser
@@ -191,11 +195,7 @@ public class MainActivity extends Activity {
                 }
 
                 if (url.matches("https://([a-zA-Z0-9-]+\\.)*chatgpt\\.com/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*oaistatic\\.com/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*openai\\.com/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*prodregistryv2\\.org/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*featureassets\\.org/.*") ||
-                    url.matches("https://([a-zA-Z0-9-]+\\.)*browser-intake-datadoghq\\.com/.*")) {
+                    url.matches("https://([a-zA-Z0-9-]+\\.)*auth\\.openai\\.com/.*")) {
                     return false; // Allow these URLs to load in WebView
                 } else {
                     // Open all other URLs in an external browser
