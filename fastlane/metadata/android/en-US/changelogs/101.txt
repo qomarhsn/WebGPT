@@ -1,0 +1,4 @@
+WebGPT v1.0.1
+
+- Fixed microphone permission issue for voice input in WebView.
+- Updated Gradle wrapper and build scripts for better build stability.
