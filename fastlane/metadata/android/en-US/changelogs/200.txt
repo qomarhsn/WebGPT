@@ -1,0 +1,1 @@
+- Rewrite app in Kotlin, replace Java gptassist fork with fresh codebase, and change app icon

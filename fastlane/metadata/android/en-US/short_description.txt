@@ -1,1 +1,1 @@
-Simple WebView wrapper for ChatGPT
+Lightweight WebView wrapper for ChatGPT
