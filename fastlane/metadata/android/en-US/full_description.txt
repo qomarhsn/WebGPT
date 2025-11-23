@@ -8,4 +8,4 @@ Features:
 • Light/dark mode support based on system theme  
 • No tracking, analytics, or background activity  
 • Very small APK (~150 KB)  
-• Requires only internet and (optionally) microphone permission for voice input
+• Requires minimal permissions: internet access (required), microphone access (optional, for voice input), storage access (for file uploads and downloads)

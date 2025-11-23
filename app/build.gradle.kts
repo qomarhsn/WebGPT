@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace = "com.qomarhsn.webgpt"
-    compileSdk = 34
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.qomarhsn.webgpt"
         minSdk = 21
-        targetSdk = 34
-        versionCode = 200
-        versionName = "2.0.0"
+        targetSdk = 36
+        versionCode = 201
+        versionName = "2.0.1"
 
         vectorDrawables.useSupportLibrary = true
     }

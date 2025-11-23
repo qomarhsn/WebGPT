@@ -28,17 +28,17 @@ class MainActivity : Activity() {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        webView = WebView(this).apply {
-            layoutParams = android.view.ViewGroup.LayoutParams(
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT,
-                android.view.ViewGroup.LayoutParams.MATCH_PARENT
-            )
-
+        
+        // Use XML layout with fitsSystemWindows
+        setContentView(R.layout.activity_main)
+        
+        // Find WebView from layout
+        webView = findViewById(R.id.webview)
+        
+        webView.apply {
             settings.apply {
                 javaScriptEnabled = true
                 domStorageEnabled = true
-                databaseEnabled = true
                 setSupportZoom(true)
                 builtInZoomControls = true
                 displayZoomControls = false
@@ -147,8 +147,7 @@ class MainActivity : Activity() {
 
         val urlToLoad = intent?.dataString ?: "https://chatgpt.com"
         webView.loadUrl(urlToLoad)
-
-        setContentView(webView)
+        
         applySystemTheme()
     }
 
@@ -226,6 +225,7 @@ class MainActivity : Activity() {
      * Dark mode: #212121 background, white icons
      * Light mode: #ffffff background, dark icons
      */
+    @Suppress("DEPRECATION")
     private fun applySystemTheme() {
         val isDarkMode = (resources.configuration.uiMode and 
             Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
